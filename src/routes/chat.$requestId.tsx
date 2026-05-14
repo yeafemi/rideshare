@@ -114,9 +114,9 @@ function Chat() {
         const { error } = await supabase
           .from("ride_requests")
           .update({
-            // @ts-expect-error
+            // @ts-expect-error - missing in generated types
             driver_lat: latitude,
-            // @ts-expect-error
+            // @ts-expect-error - missing in generated types
             driver_lng: longitude,
           })
           .eq("id", requestId);

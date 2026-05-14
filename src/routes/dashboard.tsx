@@ -482,7 +482,7 @@ function Dashboard() {
                             <span>{r.routes?.departure_time?.slice(0, 5)}</span>
                             <span>·</span>
                             <span>{r.seats_requested} seat(s)</span>
-                            {/* @ts-expect-error */}
+                            {/* @ts-expect-error - missing in generated types */}
                             {r.payment_status === "paid" && (
                               <Badge
                                 variant="outline"

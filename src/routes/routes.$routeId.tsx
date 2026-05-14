@@ -365,13 +365,13 @@ function RouteDetail() {
           driver_id: route.driver_id,
           seats_requested: seats,
           pickup_note: note,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           payment_status: "paid",
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           payment_ref: paymentRef,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           commission_fee: commission,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           total_price: totalPrice,
         })
         .select()

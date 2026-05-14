@@ -229,20 +229,20 @@ function NewRoute() {
           departure_time: values.departureTime,
           available_seats: values.availableSeats,
           price_per_seat: values.pricePerSeat,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           start_lat: values.startLat,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           start_lng: values.startLng,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           end_lat: values.endLat,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           end_lng: values.endLng,
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           polyline: JSON.stringify(
             (map.current?.getSource("route") as any)?._data?.geometry
               ?.coordinates,
           ),
-          // @ts-expect-error
+          // @ts-expect-error - missing in generated types
           total_distance: routeDistance,
         })
         .select()
