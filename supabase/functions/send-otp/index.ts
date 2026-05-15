@@ -94,9 +94,17 @@ serve(async (req: Request) => {
 
     throw new Error("Invalid action");
   } catch (error: any) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-      status: 400,
-    });
+    console.error("Function Error:", error);
+    return new Response(
+      JSON.stringify({
+        error: error.message,
+        details: error.status || "Unknown status",
+        stack: error.stack,
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      },
+    );
   }
 });
