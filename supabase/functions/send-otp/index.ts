@@ -46,14 +46,35 @@ serve(async (req: Request) => {
 
     if (action === "verify") {
       console.log(`Verifying login for ${phone}...`);
+      const dummyEmail = `${phone.replace("+", "")}@rideshare.com`;
 
-      // Generate magic link for the user
-      // Note: This requires the phone number to exist in Supabase Auth or for "Allow signup" to be enabled
-      const { data, error } = await supabaseAdmin.auth.admin.generateLink({
+      // 1. Try to generate link
+      let { data, error } = await supabaseAdmin.auth.admin.generateLink({
         type: "magiclink",
-        email: `${phone.replace("+", "")}@rideshare.com`, // We use a dummy email for phone auth via magic link if phone auth isn't fully set up
+        email: dummyEmail,
         options: { redirectTo },
       });
+
+      // 2. If user doesn't exist (error code 422 or message contains user not found), create them
+      if (error && (error.status === 422 || error.message?.toLowerCase().includes("not found"))) {
+        console.log(`User ${dummyEmail} not found, creating...`);
+        const { error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email: dummyEmail,
+          email_confirmed: true,
+          user_metadata: { phone_number: phone }
+        });
+        
+        if (createError) throw createError;
+
+        // Try generating link again
+        const retry = await supabaseAdmin.auth.admin.generateLink({
+          type: "magiclink",
+          email: dummyEmail,
+          options: { redirectTo },
+        });
+        data = retry.data;
+        error = retry.error;
+      }
 
       if (error) throw error;
 
