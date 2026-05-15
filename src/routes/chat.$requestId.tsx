@@ -128,12 +128,11 @@ function Chat() {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // LIVE GPS TRACKING FOR BOTH PARTIES
   useEffect(() => {
     if (!user || !request || request.status !== "accepted" && request.status !== "en_route") return;
 
     const isDriver = user.id === request.driver_id;
-    console.log("Starting GPS tracking for verification...");
+
 
     const watchId = navigator.geolocation.watchPosition(
       async (pos) => {
