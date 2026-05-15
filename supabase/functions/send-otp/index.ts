@@ -56,14 +56,19 @@ serve(async (req: Request) => {
       });
 
       // 2. If user doesn't exist (error code 422 or message contains user not found), create them
-      if (error && (error.status === 422 || error.message?.toLowerCase().includes("not found"))) {
+      if (
+        error &&
+        (error.status === 422 ||
+          error.message?.toLowerCase().includes("not found"))
+      ) {
         console.log(`User ${dummyEmail} not found, creating...`);
-        const { error: createError } = await supabaseAdmin.auth.admin.createUser({
-          email: dummyEmail,
-          email_confirmed: true,
-          user_metadata: { phone_number: phone }
-        });
-        
+        const { error: createError } =
+          await supabaseAdmin.auth.admin.createUser({
+            email: dummyEmail,
+            email_confirmed: true,
+            user_metadata: { phone_number: phone },
+          });
+
         if (createError) throw createError;
 
         // Try generating link again
