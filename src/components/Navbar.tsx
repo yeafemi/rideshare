@@ -1,7 +1,17 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Car, LogOut, Menu, Shield, Home, Search, MapPinned, User as UserIcon, Briefcase } from "lucide-react";
+import {
+  Car,
+  LogOut,
+  Menu,
+  Shield,
+  Home,
+  Search,
+  MapPinned,
+  User as UserIcon,
+  Briefcase,
+} from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {
@@ -167,7 +177,15 @@ function MobileBottomNav({ user }: { user: any }) {
   );
 }
 
-function BottomNavLink({ to, icon: Icon, label }: { to: string; icon: any; label: string }) {
+function BottomNavLink({
+  to,
+  icon: Icon,
+  label,
+}: {
+  to: string;
+  icon: any;
+  label: string;
+}) {
   return (
     <Link
       to={to}
@@ -175,7 +193,9 @@ function BottomNavLink({ to, icon: Icon, label }: { to: string; icon: any; label
       activeProps={{ className: "text-primary" }}
     >
       <Icon className="h-5 w-5" />
-      <span className="text-[10px] font-bold uppercase tracking-tighter">{label}</span>
+      <span className="text-[10px] font-bold uppercase tracking-tighter">
+        {label}
+      </span>
     </Link>
   );
 }

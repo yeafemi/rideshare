@@ -1,0 +1,50 @@
+﻿
+> lint
+> eslint .
+
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\eslint.config.js
+  9:4  error  Replace `┬╖ignores:┬╖["dist",┬╖".output",┬╖".vinxi",┬╖"src/integrations/supabase/types.ts"]` with `ΓÅÄ┬╖┬╖┬╖┬╖ignores:┬╖[ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖"dist",ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖".output",ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖".vinxi",ΓÅÄ┬╖┬╖┬╖┬╖┬╖┬╖"src/integrations/supabase/types.ts",ΓÅÄ┬╖┬╖┬╖┬╖],ΓÅÄ┬╖`  prettier/prettier
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\MapboxView.tsx
+  114:6  warning  React Hook useEffect has missing dependencies: 'driver?.lat', 'driver?.lng', 'end', and 'start'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  131:6  warning  React Hook useEffect has a missing dependency: 'driver'. Either include it or remove the dependency array                                            react-hooks/exhaustive-deps
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\ui\badge.tsx
+  37:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\ui\button.tsx
+  59:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\ui\form.tsx
+  171:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\ui\navigation-menu.tsx
+  119:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\ui\sidebar.tsx
+  778:3  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\components\ui\toggle.tsx
+  43:18  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\hooks\useAuth.tsx
+  81:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\routes\chat.$requestId.tsx
+  130:6  warning  React Hook useEffect has a missing dependency: 'loadData'. Either include it or remove the dependency array                             react-hooks/exhaustive-deps
+  163:6  warning  React Hook useEffect has a missing dependency: 'request'. Either include it or remove the dependency array                              react-hooks/exhaustive-deps
+  236:6  warning  React Hook useEffect has missing dependencies: 'request.status' and 'updateStatus'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\routes\routes.$routeId.tsx
+  161:6  warning  React Hook useEffect has a missing dependency: 'drawFullRoute'. Either include it or remove the dependency array                                                                                                                     react-hooks/exhaustive-deps
+  179:6  warning  React Hook useEffect has a missing dependency: 'drawFullRoute'. Either include it or remove the dependency array. Mutable values like 'map.current' aren't valid dependencies because mutating them doesn't re-render the component  react-hooks/exhaustive-deps
+  300:6  warning  React Hook useEffect has a missing dependency: 'fetchUserDistance'. Either include it or remove the dependency array                                                                                                                 react-hooks/exhaustive-deps
+
+C:\Users\Emmanuel BRAKO APAU\Downloads\RideShare\src\routes\routes.new.tsx
+   97:6  warning  React Hook useEffect has a missing dependency: 'fetchCar'. Either include it or remove the dependency array                            react-hooks/exhaustive-deps
+  192:6  warning  React Hook useEffect has missing dependencies: 'picking', 'setValue', and 'watch'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+Γ£û 18 problems (1 error, 17 warnings)
+  1 error and 0 warnings potentially fixable with the `--fix` option.
+

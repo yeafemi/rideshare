@@ -36,8 +36,12 @@ function RoutesIndex() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  const [passengerPos, setPassengerPos] = useState<[number, number] | null>(null);
-  const [destinationPos, setDestinationPos] = useState<[number, number] | null>(null);
+  const [passengerPos, setPassengerPos] = useState<[number, number] | null>(
+    null,
+  );
+  const [destinationPos, setDestinationPos] = useState<[number, number] | null>(
+    null,
+  );
   const [matchingResults, setMatchingResults] = useState<any[]>([]);
 
   useEffect(() => {
@@ -64,7 +68,7 @@ function RoutesIndex() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setPassengerPos([pos.coords.longitude, pos.coords.latitude]),
-        (err) => console.error("Geolocation denied", err)
+        (err) => console.error("Geolocation denied", err),
       );
     }
   }, []);
@@ -78,7 +82,7 @@ function RoutesIndex() {
 
     const matches = routes.map((route) => {
       if (!route.polyline) return { ...route, isMatch: false };
-      
+
       try {
         const line = turf.lineString(JSON.parse(route.polyline));
         const ptStart = turf.point(passengerPos);
@@ -109,7 +113,10 @@ function RoutesIndex() {
           // 4. Distance based price
           const segment = turf.lineSlice(snappedStart, snappedEnd, line);
           segmentDist = turf.length(segment); // km
-          matchedPrice = Math.max(5, (segmentDist / 20) * Number(route.price_per_seat));
+          matchedPrice = Math.max(
+            5,
+            (segmentDist / 20) * Number(route.price_per_seat),
+          );
         }
 
         return {
@@ -124,7 +131,11 @@ function RoutesIndex() {
       }
     });
 
-    setMatchingResults(matches.filter(m => !destinationPos || m.isMatch).sort((a, b) => (a.pickupDist || 0) - (b.pickupDist || 0)));
+    setMatchingResults(
+      matches
+        .filter((m) => !destinationPos || m.isMatch)
+        .sort((a, b) => (a.pickupDist || 0) - (b.pickupDist || 0)),
+    );
   }, [passengerPos, destinationPos, routes]);
 
   const filtered = routes.filter((r) => {
@@ -172,21 +183,27 @@ function RoutesIndex() {
               <MapPin className="absolute left-4 top-3.5 h-5 w-5 text-primary" />
               <Input
                 placeholder="Current Location (GPS Detected)"
-                value={passengerPos ? "Current Location" : "Detecting Location..."}
+                value={
+                  passengerPos ? "Current Location" : "Detecting Location..."
+                }
                 disabled
                 className="h-12 border-none pl-12 text-sm font-bold bg-primary/5"
               />
             </div>
           </Card>
           <Card className="overflow-hidden border-none shadow-lg">
-            <DestinationSearch onSelect={(coords) => setDestinationPos(coords)} />
+            <DestinationSearch
+              onSelect={(coords) => setDestinationPos(coords)}
+            />
           </Card>
         </div>
 
         <div className="mb-8 flex items-center justify-between">
-           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
-             {destinationPos ? `Found ${matchingResults.length} matches for your commute` : "Browse all active routes"}
-           </p>
+          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+            {destinationPos
+              ? `Found ${matchingResults.length} matches for your commute`
+              : "Browse all active routes"}
+          </p>
         </div>
 
         {loading ? (
@@ -200,8 +217,8 @@ function RoutesIndex() {
             </div>
             <h3 className="text-xl font-bold">No matching rides</h3>
             <p className="mt-2 max-w-sm text-muted-foreground">
-              We couldn't find any drivers going your way right now. 
-              Try adjusting your destination or check back later.
+              We couldn't find any drivers going your way right now. Try
+              adjusting your destination or check back later.
             </p>
           </Card>
         ) : (
@@ -255,9 +272,16 @@ function RoutesIndex() {
                       <div className="flex flex-col items-center gap-1">
                         <Banknote className="h-4 w-4 text-primary" />
                         <span className="text-sm font-bold text-primary">
-                          GHS {Number(r.matchedPrice || r.price_per_seat).toFixed(2)}
+                          GHS{" "}
+                          {Number(r.matchedPrice || r.price_per_seat).toFixed(
+                            2,
+                          )}
                         </span>
-                        {r.matchedPrice && <span className="text-[10px] opacity-50">Est. Fare</span>}
+                        {r.matchedPrice && (
+                          <span className="text-[10px] opacity-50">
+                            Est. Fare
+                          </span>
+                        )}
                       </div>
                     </div>
 

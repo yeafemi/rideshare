@@ -15,10 +15,10 @@ serve(async (req: Request) => {
 
   try {
     const { action, phone, code, redirectTo } = await req.json();
-    
+
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     );
 
     if (action === "send") {
@@ -28,13 +28,13 @@ serve(async (req: Request) => {
       const from = "IGNYTE";
 
       const message = `Your RideShare verification code is: ${code}`;
-      
+
       // Call Hubtel API
       const cleanPhone = phone.replace("+", "");
       const hubtelUrl = `https://smsc.hubtel.com/v1/messages/send?clientsecret=${clientsecret}&clientid=${clientid}&from=${from}&to=${cleanPhone}&content=${encodeURIComponent(message)}`;
 
       console.log(`Sending SMS to ${cleanPhone}...`);
-      
+
       const hubtelRes = await fetch(hubtelUrl);
       const hubtelData = await hubtelRes.json();
 
@@ -42,25 +42,28 @@ serve(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
-    } 
-    
+    }
+
     if (action === "verify") {
       console.log(`Verifying login for ${phone}...`);
-      
+
       // Generate magic link for the user
       // Note: This requires the phone number to exist in Supabase Auth or for "Allow signup" to be enabled
       const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-        type: 'magiclink',
+        type: "magiclink",
         email: `${phone.replace("+", "")}@rideshare.com`, // We use a dummy email for phone auth via magic link if phone auth isn't fully set up
-        options: { redirectTo }
+        options: { redirectTo },
       });
 
       if (error) throw error;
 
-      return new Response(JSON.stringify({ success: true, link: data.properties.action_link }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 200,
-      });
+      return new Response(
+        JSON.stringify({ success: true, link: data.properties.action_link }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        },
+      );
     }
 
     throw new Error("Invalid action");

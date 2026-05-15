@@ -7,7 +7,10 @@ interface DestinationSearchProps {
   placeholder?: string;
 }
 
-export function DestinationSearch({ onSelect, placeholder = "Where are you going?" }: DestinationSearchProps) {
+export function DestinationSearch({
+  onSelect,
+  placeholder = "Where are you going?",
+}: DestinationSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
@@ -15,7 +18,10 @@ export function DestinationSearch({ onSelect, placeholder = "Where are you going
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setOpen(false);
       }
     };
@@ -33,7 +39,7 @@ export function DestinationSearch({ onSelect, placeholder = "Where are you going
       try {
         const token = import.meta.env.VITE_MAPBOX_TOKEN;
         const res = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&country=gh&limit=5`
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json?access_token=${token}&country=gh&limit=5`,
         );
         const data = await res.json();
         setResults(data.features || []);
@@ -58,8 +64,11 @@ export function DestinationSearch({ onSelect, placeholder = "Where are you going
           className="h-12 border-none pl-12 text-lg focus-visible:ring-0 bg-background"
         />
         {query && (
-          <button 
-            onClick={() => { setQuery(""); setResults([]); }}
+          <button
+            onClick={() => {
+              setQuery("");
+              setResults([]);
+            }}
             className="absolute right-4 top-3.5"
           >
             <X className="h-5 w-5 text-muted-foreground" />
@@ -84,7 +93,9 @@ export function DestinationSearch({ onSelect, placeholder = "Where are you going
               </div>
               <div className="flex flex-col overflow-hidden">
                 <span className="text-sm font-bold truncate">{r.text}</span>
-                <span className="text-[10px] text-muted-foreground truncate">{r.place_name}</span>
+                <span className="text-[10px] text-muted-foreground truncate">
+                  {r.place_name}
+                </span>
               </div>
             </button>
           ))}

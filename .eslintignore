@@ -1,0 +1,4 @@
+src/integrations/supabase/types.ts
+node_modules
+dist
+.tempmediaStorage

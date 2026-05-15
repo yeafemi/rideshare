@@ -79,7 +79,7 @@ function AuthPage() {
 
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       setSentCode(code);
-      
+
       // AUTHORIZED TESTER BYPASS
       const authorizedTesters = ["+233200692763", "+233593023564"];
       if (authorizedTesters.includes(formattedPhone)) {
@@ -116,7 +116,8 @@ function AuthPage() {
       }
 
       // We pass the current origin so the Edge Function knows where to redirect back to
-      const redirectTo = window.location.origin + import.meta.env.BASE_URL + "dashboard";
+      const redirectTo =
+        window.location.origin + import.meta.env.BASE_URL + "dashboard";
 
       const { data, error } = await supabase.functions.invoke("send-otp", {
         body: { action: "verify", phone: phoneNumber, redirectTo },

@@ -34,7 +34,12 @@ const QUICK = [
   "Arrived 👋",
 ];
 
-const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+const getDistance = (
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number,
+) => {
   const R = 6371e3; // metres
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
@@ -129,15 +134,19 @@ function Chat() {
   }, [messages]);
 
   useEffect(() => {
-    if (!user || !request || request.status !== "accepted" && request.status !== "en_route") return;
+    if (
+      !user ||
+      !request ||
+      (request.status !== "accepted" && request.status !== "en_route")
+    )
+      return;
 
     const isDriver = user.id === request.driver_id;
-
 
     const watchId = navigator.geolocation.watchPosition(
       async (pos) => {
         const { latitude, longitude } = pos.coords;
-        const updateObj: any = isDriver 
+        const updateObj: any = isDriver
           ? { driver_lat: latitude, driver_lng: longitude }
           : { passenger_lat: latitude, passenger_lng: longitude };
 
@@ -160,11 +169,16 @@ function Chat() {
         request.driver_lat,
         request.driver_lng,
         request.passenger_lat,
-        request.passenger_lng
+        request.passenger_lng,
       );
       setDist(d);
     }
-  }, [request?.driver_lat, request?.driver_lng, request?.passenger_lat, request?.passenger_lng]);
+  }, [
+    request?.driver_lat,
+    request?.driver_lng,
+    request?.passenger_lat,
+    request?.passenger_lng,
+  ]);
 
   const send = async (content: string) => {
     if (!user || !content.trim()) return;
@@ -195,7 +209,7 @@ function Chat() {
       .from("ride_requests")
       .update({ driver_confirmed_at: new Date().toISOString() })
       .eq("id", requestId);
-    
+
     if (error) toast.error(error.message);
     else toast.success("Code Verified! Waiting for passenger...");
   };
@@ -205,14 +219,18 @@ function Chat() {
       .from("ride_requests")
       .update({ passenger_confirmed_at: new Date().toISOString() })
       .eq("id", requestId);
-    
+
     if (error) toast.error(error.message);
     else toast.success("Confirmation sent! Waiting for driver...");
   };
 
   // Auto-start if both confirmed
   useEffect(() => {
-    if (request?.driver_confirmed_at && request?.passenger_confirmed_at && request.status === "accepted") {
+    if (
+      request?.driver_confirmed_at &&
+      request?.passenger_confirmed_at &&
+      request.status === "accepted"
+    ) {
       updateStatus("en_route");
     }
   }, [request?.driver_confirmed_at, request?.passenger_confirmed_at]);
@@ -300,7 +318,7 @@ function Chat() {
                 )}
               </div>
             )}
-            
+
             <div className="flex gap-1">
               <Button
                 variant="ghost"
@@ -336,9 +354,13 @@ function Chat() {
               className="h-full w-full rounded-2xl shadow-lg border border-primary/10 overflow-hidden"
             />
             <div className="absolute top-6 right-6 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-               <Button size="xs" variant="secondary" className="h-7 text-[10px] bg-white/80 backdrop-blur shadow-sm">
-                 <Navigation className="h-3 w-3 mr-1" /> Track Driver
-               </Button>
+              <Button
+                size="xs"
+                variant="secondary"
+                className="h-7 text-[10px] bg-white/80 backdrop-blur shadow-sm"
+              >
+                <Navigation className="h-3 w-3 mr-1" /> Track Driver
+              </Button>
             </div>
           </div>
         )}
@@ -347,53 +369,81 @@ function Chat() {
         {request.status === "accepted" && (
           <div className="px-4 pt-4 shrink-0">
             <Card className="p-4 border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center text-center animate-in zoom-in duration-500">
-               <div className="flex items-center gap-2 mb-2">
-                 <ShieldAlert className="h-5 w-5 text-primary opacity-80" />
-                 <h4 className="text-sm font-black uppercase tracking-tighter">Safe Pickup Verification</h4>
-               </div>
-               
-               {dist !== null && (
-                 <div className={`mb-4 px-3 py-1 rounded-full text-[10px] font-bold ${dist > 50 ? "bg-amber-100 text-amber-700" : "bg-success/10 text-success"}`}>
-                    {dist > 50 ? `Move closer: ${Math.round(dist)}m away` : `Proximity Verified: ${Math.round(dist)}m`}
-                 </div>
-               )}
+              <div className="flex items-center gap-2 mb-2">
+                <ShieldAlert className="h-5 w-5 text-primary opacity-80" />
+                <h4 className="text-sm font-black uppercase tracking-tighter">
+                  Safe Pickup Verification
+                </h4>
+              </div>
 
-               {!isDriver ? (
-                 <div className="space-y-4 w-full">
-                    <div className="bg-background rounded-xl p-4 border shadow-sm">
-                       <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Your Pickup Code</p>
-                       <div className="text-3xl font-black tracking-widest text-primary">{request.pickup_otp || "------"}</div>
-                       <p className="text-[10px] text-muted-foreground mt-2">Share this with the driver only when you are at the vehicle.</p>
+              {dist !== null && (
+                <div
+                  className={`mb-4 px-3 py-1 rounded-full text-[10px] font-bold ${dist > 50 ? "bg-amber-100 text-amber-700" : "bg-success/10 text-success"}`}
+                >
+                  {dist > 50
+                    ? `Move closer: ${Math.round(dist)}m away`
+                    : `Proximity Verified: ${Math.round(dist)}m`}
+                </div>
+              )}
+
+              {!isDriver ? (
+                <div className="space-y-4 w-full">
+                  <div className="bg-background rounded-xl p-4 border shadow-sm">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">
+                      Your Pickup Code
+                    </p>
+                    <div className="text-3xl font-black tracking-widest text-primary">
+                      {request.pickup_otp || "------"}
                     </div>
-                    <Button 
-                      className="w-full h-11 font-bold shadow-lg" 
-                      disabled={dist === null || dist > 50 || !!request.passenger_confirmed_at}
-                      onClick={confirmInCar}
-                    >
-                      {request.passenger_confirmed_at ? "Waiting for Driver..." : "Confirm I'm in the Car"}
-                    </Button>
-                 </div>
-               ) : (
-                 <div className="space-y-4 w-full">
-                    <div className="bg-background rounded-xl p-4 border shadow-sm">
-                       <p className="text-[10px] text-muted-foreground uppercase font-bold mb-2">Enter Pickup Code</p>
-                       <Input 
-                         value={otp}
-                         onChange={(e) => setOtp(e.target.value)}
-                         placeholder="000000"
-                         className="text-center text-2xl font-black tracking-widest h-12"
-                         maxLength={6}
-                       />
-                    </div>
-                    <Button 
-                      className="w-full h-11 font-bold shadow-lg" 
-                      disabled={dist === null || dist > 50 || otp.length < 6 || !!request.driver_confirmed_at}
-                      onClick={verifyAndStart}
-                    >
-                      {request.driver_confirmed_at ? "Waiting for Passenger..." : "Verify & Start Trip"}
-                    </Button>
-                 </div>
-               )}
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Share this with the driver only when you are at the
+                      vehicle.
+                    </p>
+                  </div>
+                  <Button
+                    className="w-full h-11 font-bold shadow-lg"
+                    disabled={
+                      dist === null ||
+                      dist > 50 ||
+                      !!request.passenger_confirmed_at
+                    }
+                    onClick={confirmInCar}
+                  >
+                    {request.passenger_confirmed_at
+                      ? "Waiting for Driver..."
+                      : "Confirm I'm in the Car"}
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4 w-full">
+                  <div className="bg-background rounded-xl p-4 border shadow-sm">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold mb-2">
+                      Enter Pickup Code
+                    </p>
+                    <Input
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      placeholder="000000"
+                      className="text-center text-2xl font-black tracking-widest h-12"
+                      maxLength={6}
+                    />
+                  </div>
+                  <Button
+                    className="w-full h-11 font-bold shadow-lg"
+                    disabled={
+                      dist === null ||
+                      dist > 50 ||
+                      otp.length < 6 ||
+                      !!request.driver_confirmed_at
+                    }
+                    onClick={verifyAndStart}
+                  >
+                    {request.driver_confirmed_at
+                      ? "Waiting for Passenger..."
+                      : "Verify & Start Trip"}
+                  </Button>
+                </div>
+              )}
             </Card>
           </div>
         )}
@@ -443,30 +493,38 @@ function Chat() {
         {/* SOS Floating Button */}
         {request.status === "en_route" && (
           <div className="absolute bottom-32 right-4 z-20 flex flex-col items-end gap-3">
-             <div className="flex flex-col items-center group">
-                <div className="mb-2 px-3 py-1 bg-destructive text-white text-[10px] font-black rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
-                  SOS EMERGENCY
-                </div>
-                <Button
-                  size="icon"
-                  className="h-14 w-14 rounded-full bg-destructive hover:bg-destructive/90 shadow-2xl shadow-destructive/40 border-4 border-white/20 animate-pulse"
-                  onClick={async () => {
-                    const ok = confirm("🚨 ACTIVATE SOS?\n\nThis will send your LIVE location to emergency contacts and notify our safety team.");
-                    if (ok) {
-                      const { error } = await supabase.from("emergency_events").insert({
+            <div className="flex flex-col items-center group">
+              <div className="mb-2 px-3 py-1 bg-destructive text-white text-[10px] font-black rounded-full shadow-xl opacity-0 group-hover:opacity-100 transition-all translate-y-2 group-hover:translate-y-0">
+                SOS EMERGENCY
+              </div>
+              <Button
+                size="icon"
+                className="h-14 w-14 rounded-full bg-destructive hover:bg-destructive/90 shadow-2xl shadow-destructive/40 border-4 border-white/20 animate-pulse"
+                onClick={async () => {
+                  const ok = confirm(
+                    "🚨 ACTIVATE SOS?\n\nThis will send your LIVE location to emergency contacts and notify our safety team.",
+                  );
+                  if (ok) {
+                    const { error } = await supabase
+                      .from("emergency_events")
+                      .insert({
                         request_id: requestId,
                         triggered_by: user.id,
                         location_lat: request.driver_lat,
                         location_lng: request.driver_lng,
                       });
-                      if (error) toast.error("SOS failed to log: " + error.message);
-                      else toast.error("SOS ACTIVATED. HELP IS ON THE WAY.", { duration: 10000 });
-                    }
-                  }}
-                >
-                  <AlertTriangle className="h-7 w-7" />
-                </Button>
-             </div>
+                    if (error)
+                      toast.error("SOS failed to log: " + error.message);
+                    else
+                      toast.error("SOS ACTIVATED. HELP IS ON THE WAY.", {
+                        duration: 10000,
+                      });
+                  }
+                }}
+              >
+                <AlertTriangle className="h-7 w-7" />
+              </Button>
+            </div>
           </div>
         )}
 
@@ -511,7 +569,11 @@ function Chat() {
           <RatingModal
             requestId={requestId}
             raterId={user.id}
-            rateeId={user.id === request.driver_id ? request.passenger_id : request.driver_id}
+            rateeId={
+              user.id === request.driver_id
+                ? request.passenger_id
+                : request.driver_id
+            }
             onSuccess={() => setHasRated(true)}
           />
         )}

@@ -523,8 +523,8 @@ function RouteDetail() {
                   {isOwner ? "Ownership Restricted" : "Secure Booking"}
                 </h2>
                 <p className="text-xs opacity-80 mt-1">
-                  {isOwner 
-                    ? "You cannot interact with your own route as a passenger." 
+                  {isOwner
+                    ? "You cannot interact with your own route as a passenger."
                     : "Select your points to see the final price"}
                 </p>
               </div>
@@ -536,212 +536,213 @@ function RouteDetail() {
                     Self-Booking Prohibited
                   </div>
                   <p className="text-[10px] text-muted-foreground mt-2 leading-relaxed">
-                    Safety protocols prevent drivers from requesting or booking their own rides. 
-                    Please use the **Dashboard** to manage your routes or passengers.
+                    Safety protocols prevent drivers from requesting or booking
+                    their own rides. Please use the **Dashboard** to manage your
+                    routes or passengers.
                   </p>
                 </div>
               )}
 
-              <div className={`p-6 space-y-6 ${isOwner ? "opacity-40 grayscale pointer-events-none select-none" : ""}`}>
-                  {/* Step 1: Pickup */}
-                  <div className="space-y-3">
-                    <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px]">
-                        1
-                      </div>
-                      Pickup Point
-                    </Label>
-                    <div className="grid gap-2">
-                      <select
-                        className="w-full h-11 rounded-xl border-primary/20 bg-background px-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
-                        onChange={(e) => {
-                          const stop = landmarks[Number(e.target.value)];
-                          if (stop) {
-                            setPickup(stop.coords);
-                            pMarker.current
-                              ?.setLngLat(stop.coords)
-                              .addTo(map.current!);
-                            setConfirmed(false);
-                          }
-                        }}
-                        value={landmarks.findIndex(
-                          (l) => l.coords[0] === pickup?.[0],
-                        )}
-                      >
-                        <option value="">
-                          Select a landmark or click map...
-                        </option>
-                        {landmarks.map((l, i) => (
-                          <option key={i} value={i}>
-                            {l.name}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        variant={
-                          activeStep === "pickup" ? "default" : "outline"
+              <div
+                className={`p-6 space-y-6 ${isOwner ? "opacity-40 grayscale pointer-events-none select-none" : ""}`}
+              >
+                {/* Step 1: Pickup */}
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px]">
+                      1
+                    </div>
+                    Pickup Point
+                  </Label>
+                  <div className="grid gap-2">
+                    <select
+                      className="w-full h-11 rounded-xl border-primary/20 bg-background px-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
+                      onChange={(e) => {
+                        const stop = landmarks[Number(e.target.value)];
+                        if (stop) {
+                          setPickup(stop.coords);
+                          pMarker.current
+                            ?.setLngLat(stop.coords)
+                            .addTo(map.current!);
+                          setConfirmed(false);
                         }
-                        size="sm"
-                        onClick={() => setActiveStep("pickup")}
-                        className="w-full rounded-xl text-xs h-9 border-dashed"
-                      >
-                        {pickup ? "✓ Point Pinned" : "Pin exactly on Map"}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Step 2: Dropoff */}
-                  <div className="space-y-3">
-                    <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
-                      <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px]">
-                        2
-                      </div>
-                      Destination
-                    </Label>
-                    <div className="grid gap-2">
-                      <select
-                        className="w-full h-11 rounded-xl border-primary/20 bg-background px-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
-                        onChange={(e) => {
-                          const stop = landmarks[Number(e.target.value)];
-                          if (stop) {
-                            setDropoff(stop.coords);
-                            dMarker.current
-                              ?.setLngLat(stop.coords)
-                              .addTo(map.current!);
-                            setConfirmed(false);
-                          }
-                        }}
-                        value={landmarks.findIndex(
-                          (l) => l.coords[0] === dropoff?.[0],
-                        )}
-                      >
-                        <option value="">
-                          Select a landmark or click map...
-                        </option>
-                        {landmarks.map((l, i) => (
-                          <option key={i} value={i}>
-                            {l.name}
-                          </option>
-                        ))}
-                      </select>
-                      <Button
-                        variant={
-                          activeStep === "dropoff" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setActiveStep("dropoff")}
-                        className="w-full rounded-xl text-xs h-9 border-dashed"
-                      >
-                        {dropoff ? "✓ Point Pinned" : "Pin exactly on Map"}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="pt-4 border-t border-primary/10 space-y-4">
-                    <div className="flex items-center gap-2">
-                      <Label
-                        htmlFor="seats"
-                        className="text-xs font-bold whitespace-nowrap"
-                      >
-                        Seats:
-                      </Label>
-                      <Input
-                        id="seats"
-                        type="number"
-                        min={1}
-                        max={route.available_seats}
-                        value={seats}
-                        onChange={(e) => setSeats(Number(e.target.value))}
-                        className="h-9 w-20 rounded-lg text-center font-bold"
-                      />
-                    </div>
-
-                    {/* Pricing Summary */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 relative overflow-hidden group">
-                      <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Banknote className="h-12 w-12" />
-                      </div>
-
-                      <div className="flex justify-between items-end mb-4">
-                        <div>
-                          <p className="text-[10px] font-black uppercase tracking-tighter text-primary">
-                            Fare Summary
-                          </p>
-                          <h3 className="text-2xl font-black">
-                            {calcLoading
-                              ? "..."
-                              : `GHS ${totalPrice.toFixed(2)}`}
-                          </h3>
-                        </div>
-                        <Badge
-                          variant="outline"
-                          className="bg-background/50 border-primary/20 text-[10px] py-0 px-2 h-5"
-                        >
-                          {userDistance > 0
-                            ? userDistance <= finalFullDist / 2
-                              ? "Short Trip"
-                              : "Long Trip"
-                            : "Select Route"}
-                        </Badge>
-                      </div>
-
-                      <div className="space-y-2 text-[10px] text-muted-foreground font-medium">
-                        <div className="flex justify-between">
-                          <span>Segment distance</span>
-                          <span className="text-foreground">
-                            {(userDistance / 1000).toFixed(1)} km
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Route distance</span>
-                          <span className="text-foreground">
-                            {(finalFullDist / 1000).toFixed(1)} km
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {pickup && dropoff && !confirmed && (
-                      <Button
-                        className="w-full h-12 rounded-xl bg-success hover:bg-success/90 text-white font-bold animate-pulse shadow-lg shadow-success/20"
-                        onClick={() => {
-                          setConfirmed(true);
-                          setActiveStep(null);
-                        }}
-                      >
-                        Lock in this Route
-                      </Button>
-                    )}
-
-                    <Button
-                      className={`w-full h-14 rounded-2xl text-lg font-black shadow-2xl transition-all ${confirmed && !isOwner ? "scale-100 shadow-primary/30" : "scale-95 opacity-50 cursor-not-allowed grayscale"}`}
-                      disabled={submitting || !confirmed || isOwner}
-                      onClick={handlePayAndRequest}
+                      }}
+                      value={landmarks.findIndex(
+                        (l) => l.coords[0] === pickup?.[0],
+                      )}
                     >
-                      {submitting
-                        ? "Processing..."
-                        : isOwner
-                          ? "Cannot book your own ride"
-                          : confirmed
-                            ? "Pay & Book Now"
-                            : "Complete Steps Above"}
+                      <option value="">
+                        Select a landmark or click map...
+                      </option>
+                      {landmarks.map((l, i) => (
+                        <option key={i} value={i}>
+                          {l.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      variant={activeStep === "pickup" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setActiveStep("pickup")}
+                      className="w-full rounded-xl text-xs h-9 border-dashed"
+                    >
+                      {pickup ? "✓ Point Pinned" : "Pin exactly on Map"}
                     </Button>
                   </div>
                 </div>
-              </Card>
+
+                {/* Step 2: Dropoff */}
+                <div className="space-y-3">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                    <div className="h-5 w-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[10px]">
+                      2
+                    </div>
+                    Destination
+                  </Label>
+                  <div className="grid gap-2">
+                    <select
+                      className="w-full h-11 rounded-xl border-primary/20 bg-background px-3 text-sm focus:ring-2 focus:ring-primary/20 transition-all"
+                      onChange={(e) => {
+                        const stop = landmarks[Number(e.target.value)];
+                        if (stop) {
+                          setDropoff(stop.coords);
+                          dMarker.current
+                            ?.setLngLat(stop.coords)
+                            .addTo(map.current!);
+                          setConfirmed(false);
+                        }
+                      }}
+                      value={landmarks.findIndex(
+                        (l) => l.coords[0] === dropoff?.[0],
+                      )}
+                    >
+                      <option value="">
+                        Select a landmark or click map...
+                      </option>
+                      {landmarks.map((l, i) => (
+                        <option key={i} value={i}>
+                          {l.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      variant={activeStep === "dropoff" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setActiveStep("dropoff")}
+                      className="w-full rounded-xl text-xs h-9 border-dashed"
+                    >
+                      {dropoff ? "✓ Point Pinned" : "Pin exactly on Map"}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="pt-4 border-t border-primary/10 space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Label
+                      htmlFor="seats"
+                      className="text-xs font-bold whitespace-nowrap"
+                    >
+                      Seats:
+                    </Label>
+                    <Input
+                      id="seats"
+                      type="number"
+                      min={1}
+                      max={route.available_seats}
+                      value={seats}
+                      onChange={(e) => setSeats(Number(e.target.value))}
+                      className="h-9 w-20 rounded-lg text-center font-bold"
+                    />
+                  </div>
+
+                  {/* Pricing Summary */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                      <Banknote className="h-12 w-12" />
+                    </div>
+
+                    <div className="flex justify-between items-end mb-4">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-tighter text-primary">
+                          Fare Summary
+                        </p>
+                        <h3 className="text-2xl font-black">
+                          {calcLoading ? "..." : `GHS ${totalPrice.toFixed(2)}`}
+                        </h3>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className="bg-background/50 border-primary/20 text-[10px] py-0 px-2 h-5"
+                      >
+                        {userDistance > 0
+                          ? userDistance <= finalFullDist / 2
+                            ? "Short Trip"
+                            : "Long Trip"
+                          : "Select Route"}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2 text-[10px] text-muted-foreground font-medium">
+                      <div className="flex justify-between">
+                        <span>Segment distance</span>
+                        <span className="text-foreground">
+                          {(userDistance / 1000).toFixed(1)} km
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Route distance</span>
+                        <span className="text-foreground">
+                          {(finalFullDist / 1000).toFixed(1)} km
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {pickup && dropoff && !confirmed && (
+                    <Button
+                      className="w-full h-12 rounded-xl bg-success hover:bg-success/90 text-white font-bold animate-pulse shadow-lg shadow-success/20"
+                      onClick={() => {
+                        setConfirmed(true);
+                        setActiveStep(null);
+                      }}
+                    >
+                      Lock in this Route
+                    </Button>
+                  )}
+
+                  <Button
+                    className={`w-full h-14 rounded-2xl text-lg font-black shadow-2xl transition-all ${confirmed && !isOwner ? "scale-100 shadow-primary/30" : "scale-95 opacity-50 cursor-not-allowed grayscale"}`}
+                    disabled={submitting || !confirmed || isOwner}
+                    onClick={handlePayAndRequest}
+                  >
+                    {submitting
+                      ? "Processing..."
+                      : isOwner
+                        ? "Cannot book your own ride"
+                        : confirmed
+                          ? "Pay & Book Now"
+                          : "Complete Steps Above"}
+                  </Button>
+                </div>
+              </div>
+            </Card>
 
             <Card className="p-6 shadow-xl border-none bg-gradient-to-br from-background to-muted/20">
               <h3 className="text-sm font-black uppercase tracking-widest text-primary mb-6">
                 Driver & Vehicle
               </h3>
-              
+
               <div className="flex items-start gap-4">
                 <div className="relative">
                   <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-2xl text-primary shadow-inner overflow-hidden">
                     {route.profiles?.photo_url ? (
-                      <img src={route.profiles.photo_url} alt="" className="h-full w-full object-cover" />
+                      <img
+                        src={route.profiles.photo_url}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
                     ) : (
                       route.profiles?.full_name?.charAt(0)
                     )}
@@ -752,15 +753,23 @@ function RouteDetail() {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
-                  <div className="font-black text-lg truncate">{route.profiles?.full_name}</div>
+                  <div className="font-black text-lg truncate">
+                    {route.profiles?.full_name}
+                  </div>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px] h-5 px-1.5 font-bold">
+                    <Badge
+                      variant="outline"
+                      className="bg-primary/5 text-primary border-primary/20 text-[10px] h-5 px-1.5 font-bold"
+                    >
                       Trust Score: {route.profiles?.trust_score || 100}
                     </Badge>
                     {route.profiles?.school_name && (
-                      <Badge variant="outline" className="bg-emerald-500/5 text-emerald-600 border-emerald-500/20 text-[10px] h-5 px-1.5 font-bold">
+                      <Badge
+                        variant="outline"
+                        className="bg-emerald-500/5 text-emerald-600 border-emerald-500/20 text-[10px] h-5 px-1.5 font-bold"
+                      >
                         {route.profiles.school_name}
                       </Badge>
                     )}
@@ -774,19 +783,24 @@ function RouteDetail() {
                     <Car className="h-4 w-4 text-muted-foreground" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase">Vehicle</div>
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                      Vehicle
+                    </div>
                     <div className="text-sm font-black">
-                      {route.profiles?.cars?.color} {route.profiles?.cars?.make} {route.profiles?.cars?.model}
+                      {route.profiles?.cars?.color} {route.profiles?.cars?.make}{" "}
+                      {route.profiles?.cars?.model}
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center">
                     <div className="text-[10px] font-black">GH</div>
                   </div>
                   <div>
-                    <div className="text-[10px] font-bold text-muted-foreground uppercase">Plate Number</div>
+                    <div className="text-[10px] font-bold text-muted-foreground uppercase">
+                      Plate Number
+                    </div>
                     <div className="text-sm font-black tracking-widest uppercase">
                       {route.profiles?.cars?.plate_number || "GW-****-**"}
                     </div>
@@ -794,7 +808,10 @@ function RouteDetail() {
                 </div>
               </div>
 
-              <Button variant="ghost" className="w-full mt-6 text-xs text-primary font-bold hover:bg-primary/5 rounded-xl h-10">
+              <Button
+                variant="ghost"
+                className="w-full mt-6 text-xs text-primary font-bold hover:bg-primary/5 rounded-xl h-10"
+              >
                 View Driver History
               </Button>
             </Card>

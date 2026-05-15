@@ -171,7 +171,9 @@ function OnboardingPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="schoolName">University/Institution (Optional)</Label>
+                <Label htmlFor="schoolName">
+                  University/Institution (Optional)
+                </Label>
                 <Input
                   id="schoolName"
                   placeholder="e.g. University of Ghana"

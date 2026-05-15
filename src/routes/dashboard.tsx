@@ -153,18 +153,20 @@ function Dashboard() {
   };
 
   const deleteRoute = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this route? This cannot be undone.")) return;
-    
-    const { error } = await supabase
-      .from("routes")
-      .delete()
-      .eq("id", id);
-      
+    if (
+      !confirm(
+        "Are you sure you want to delete this route? This cannot be undone.",
+      )
+    )
+      return;
+
+    const { error } = await supabase.from("routes").delete().eq("id", id);
+
     if (error) {
       toast.error(error.message);
       return;
     }
-    
+
     toast.success("Route deleted");
     setMyRoutes((p) => p.filter((r) => r.id !== id));
   };

@@ -1,3 +1,4 @@
+/* eslint-disable */
 export type Json =
   | string
   | number
@@ -437,9 +438,7 @@ export type Database = {
         ];
       };
     };
-    Views: {
-      [_ in never]: never;
-    };
+    Views: { [key: string]: never };
     Functions: {
       has_role: {
         Args: {
@@ -451,18 +450,10 @@ export type Database = {
     };
     Enums: {
       app_role: "admin" | "driver" | "passenger";
-      request_status:
-        | "pending"
-        | "accepted"
-        | "declined"
-        | "cancelled"
-        | "completed"
-        | "en_route";
+      request_status: "pending" | "accepted" | "declined" | "cancelled" | "completed" | "en_route";
       payment_status: "pending_escrow" | "paid" | "released" | "refunded";
     };
-    CompositeTypes: {
-      [_ in never]: never;
-    };
+    CompositeTypes: { [key: string]: never };
   };
 };
 
