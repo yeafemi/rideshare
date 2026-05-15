@@ -19,6 +19,9 @@ import {
 } from "lucide-react";
 import { RouteMap } from "@/components/RouteMap";
 import type { Tables } from "@/integrations/supabase/types";
+import * as turf from "@turf/turf";
+import { toast } from "sonner";
+import { DestinationSearch } from "@/components/DestinationSearch";
 
 export const Route = createFileRoute("/routes/")({
   component: RoutesIndex,
@@ -33,6 +36,9 @@ function RoutesIndex() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
+  const [passengerPos, setPassengerPos] = useState<[number, number] | null>(null);
+  const [destinationPos, setDestinationPos] = useState<[number, number] | null>(null);
+  const [matchingResults, setMatchingResults] = useState<any[]>([]);
 
   useEffect(() => {
     const fetchRoutes = async () => {
@@ -53,7 +59,73 @@ function RoutesIndex() {
       }
     };
     fetchRoutes();
+
+    // Get current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setPassengerPos([pos.coords.longitude, pos.coords.latitude]),
+        (err) => console.error("Geolocation denied", err)
+      );
+    }
   }, []);
+
+  // Matching Logic
+  useEffect(() => {
+    if (!passengerPos || routes.length === 0) {
+      setMatchingResults(routes);
+      return;
+    }
+
+    const matches = routes.map((route) => {
+      if (!route.polyline) return { ...route, isMatch: false };
+      
+      try {
+        const line = turf.lineString(JSON.parse(route.polyline));
+        const ptStart = turf.point(passengerPos);
+        const ptEnd = destinationPos ? turf.point(destinationPos) : null;
+
+        // 1. Proximity to pickup
+        const snappedStart = turf.nearestPointOnLine(line, ptStart);
+        const distToPickup = snappedStart.properties.dist! * 1000; // meters
+
+        if (distToPickup > 2000) return { ...route, isMatch: false }; // Too far
+
+        let matchedPrice = Number(route.price_per_seat);
+        let segmentDist = 0;
+
+        if (ptEnd) {
+          // 2. Proximity to destination
+          const snappedEnd = turf.nearestPointOnLine(line, ptEnd);
+          const distToDropoff = snappedEnd.properties.dist! * 1000;
+
+          if (distToDropoff > 2000) return { ...route, isMatch: false };
+
+          // 3. Direction check
+          const startIndex = snappedStart.properties.index!;
+          const endIndex = snappedEnd.properties.index!;
+
+          if (startIndex >= endIndex) return { ...route, isMatch: false }; // Wrong direction
+
+          // 4. Distance based price
+          const segment = turf.lineSlice(snappedStart, snappedEnd, line);
+          segmentDist = turf.length(segment); // km
+          matchedPrice = Math.max(5, (segmentDist / 20) * Number(route.price_per_seat));
+        }
+
+        return {
+          ...route,
+          isMatch: true,
+          pickupDist: distToPickup,
+          matchedPrice,
+          matchedDist: segmentDist,
+        };
+      } catch (e) {
+        return { ...route, isMatch: false };
+      }
+    });
+
+    setMatchingResults(matches.filter(m => !destinationPos || m.isMatch).sort((a, b) => (a.pickupDist || 0) - (b.pickupDist || 0)));
+  }, [passengerPos, destinationPos, routes]);
 
   const filtered = routes.filter((r) => {
     const s = q.toLowerCase();
@@ -94,49 +166,49 @@ function RoutesIndex() {
           </Tabs>
         </div>
 
-        <div className="mb-8 flex flex-col gap-4 md:flex-row">
-          <Card className="flex-1 overflow-hidden border-none shadow-lg">
+        <div className="mb-8 grid gap-4 md:grid-cols-2">
+          <Card className="overflow-hidden border-none shadow-lg">
             <div className="relative">
-              <Search className="absolute left-4 top-3.5 h-5 w-5 text-muted-foreground" />
+              <MapPin className="absolute left-4 top-3.5 h-5 w-5 text-primary" />
               <Input
-                placeholder="Search by start or destination (e.g. Tema, Madina, Legon)"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                className="h-12 border-none pl-12 text-lg focus-visible:ring-0"
+                placeholder="Current Location (GPS Detected)"
+                value={passengerPos ? "Current Location" : "Detecting Location..."}
+                disabled
+                className="h-12 border-none pl-12 text-sm font-bold bg-primary/5"
               />
             </div>
           </Card>
-          <Button
-            variant="outline"
-            className="h-12 gap-2 border-none shadow-lg bg-background"
-          >
-            <Filter className="h-5 w-5" /> Filters
-          </Button>
+          <Card className="overflow-hidden border-none shadow-lg">
+            <DestinationSearch onSelect={(coords) => setDestinationPos(coords)} />
+          </Card>
+        </div>
+
+        <div className="mb-8 flex items-center justify-between">
+           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+             {destinationPos ? `Found ${matchingResults.length} matches for your commute` : "Browse all active routes"}
+           </p>
         </div>
 
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           </div>
-        ) : filtered.length === 0 ? (
+        ) : matchingResults.length === 0 ? (
           <Card className="flex flex-col items-center justify-center p-16 text-center border-none shadow-xl">
             <div className="mb-4 rounded-full bg-muted p-6">
               <Search className="h-12 w-12 text-muted-foreground opacity-20" />
             </div>
-            <h3 className="text-xl font-bold">No routes found</h3>
+            <h3 className="text-xl font-bold">No matching rides</h3>
             <p className="mt-2 max-w-sm text-muted-foreground">
-              We couldn't find any routes matching your search. Try a different
-              location or offer your own ride.
+              We couldn't find any drivers going your way right now. 
+              Try adjusting your destination or check back later.
             </p>
-            <Button asChild className="mt-8 h-12 px-8 text-lg font-semibold">
-              <Link to="/routes/new">Offer a Ride instead</Link>
-            </Button>
           </Card>
         ) : (
           <>
             {viewMode === "list" ? (
               <div className="grid gap-6 md:grid-cols-2">
-                {filtered.map((r) => (
+                {matchingResults.map((r) => (
                   <Card
                     key={r.id}
                     className="group relative overflow-hidden border-none p-6 shadow-xl transition-all hover:scale-[1.01] hover:shadow-2xl"
@@ -183,10 +255,18 @@ function RoutesIndex() {
                       <div className="flex flex-col items-center gap-1">
                         <Banknote className="h-4 w-4 text-primary" />
                         <span className="text-sm font-bold text-primary">
-                          GHS {Number(r.price_per_seat).toFixed(2)}
+                          GHS {Number(r.matchedPrice || r.price_per_seat).toFixed(2)}
                         </span>
+                        {r.matchedPrice && <span className="text-[10px] opacity-50">Est. Fare</span>}
                       </div>
                     </div>
+
+                    {r.pickupDist && (
+                      <div className="mt-4 flex items-center gap-2 text-[11px] font-bold text-success bg-success/5 px-3 py-2 rounded-lg">
+                        <Navigation className="h-3 w-3" />
+                        Driver passes {Math.round(r.pickupDist)}m from you
+                      </div>
+                    )}
 
                     <div className="mt-6 flex items-center justify-between">
                       <div className="flex items-center gap-2">

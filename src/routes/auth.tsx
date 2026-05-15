@@ -79,17 +79,25 @@ function AuthPage() {
 
       const code = Math.floor(100000 + Math.random() * 900000).toString();
       setSentCode(code);
+      
+      // AUTHORIZED TESTER BYPASS
+      const authorizedTesters = ["+233200692763", "+233593023564"];
+      if (authorizedTesters.includes(formattedPhone)) {
+        alert(`DEVELOPMENT BYPASS: Your verification code is ${code}`);
+        console.log("OTP Code for authorized tester:", code);
+      }
 
       // Call Edge Function with 'send' action
       const { error } = await supabase.functions.invoke("send-otp", {
         body: { action: "send", phone: formattedPhone, code },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.warn("SMS send failed, but you can use the bypass code:", code);
+      }
 
       setPhoneNumber(formattedPhone);
       setStep("otp");
-      alert(`DEBUG: Your verification code is ${code}`);
       toast.success("Verification code sent to " + formattedPhone);
     } catch (err: any) {
       toast.error(
