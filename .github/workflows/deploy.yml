@@ -25,7 +25,9 @@ jobs:
         run: npm ci
 
       - name: Build
-        run: npm run build:static
+        run: |
+          npm run build:static
+          cp dist/static/index.html dist/static/404.html
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
