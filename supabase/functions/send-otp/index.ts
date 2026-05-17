@@ -48,40 +48,46 @@ serve(async (req: Request) => {
       console.log(`Verifying login for ${phone}...`);
       const dummyEmail = `${phone.replace("+", "")}@rideshare.com`;
 
-      // 1. Try to generate link
-      let { data, error } = await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
-        email: dummyEmail,
-        options: { redirectTo },
-      });
+      // Step 1: Ensure the user exists — try creating them first.
+      // If they already exist, Supabase returns an error we can safely ignore.
+      const { error: createError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: dummyEmail,
+          email_confirmed: true,
+          user_metadata: { phone_number: phone },
+        });
 
-      // 2. If user doesn't exist (error code 422 or message contains user not found), create them
+      // Only throw if it's NOT a "user already exists" error
       if (
-        error &&
-        (error.status === 422 ||
-          error.message?.toLowerCase().includes("not found"))
+        createError &&
+        !createError.message?.toLowerCase().includes("already") &&
+        !createError.message?.toLowerCase().includes("duplicate") &&
+        createError.status !== 422
       ) {
-        console.log(`User ${dummyEmail} not found, creating...`);
-        const { error: createError } =
-          await supabaseAdmin.auth.admin.createUser({
-            email: dummyEmail,
-            email_confirmed: true,
-            user_metadata: { phone_number: phone },
-          });
+        console.error("User creation error:", createError);
+        throw createError;
+      }
 
-        if (createError) throw createError;
+      if (createError) {
+        console.log(`User ${dummyEmail} already exists, skipping creation.`);
+      } else {
+        console.log(`User ${dummyEmail} created successfully.`);
+      }
 
-        // Try generating link again
-        const retry = await supabaseAdmin.auth.admin.generateLink({
+      // Step 2: Generate the magic link — user is guaranteed to exist now
+      const { data, error: linkError } =
+        await supabaseAdmin.auth.admin.generateLink({
           type: "magiclink",
           email: dummyEmail,
           options: { redirectTo },
         });
-        data = retry.data;
-        error = retry.error;
+
+      if (linkError) {
+        console.error("generateLink error:", linkError);
+        throw linkError;
       }
 
-      if (error) throw error;
+      console.log(`Magic link generated for ${dummyEmail}`);
 
       return new Response(
         JSON.stringify({ success: true, link: data.properties.action_link }),
